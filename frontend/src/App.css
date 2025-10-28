@@ -1,38 +1,163 @@
-.App {
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+  --bg-1: #0f172a; /* deep navy */
+  --bg-2: #111827; /* near black */
+  --accent-1: #ff6bcb; /* neon pink */
+  --accent-2: #7c5cff; /* violet */
+  --mint: #6ef3c5; /* mint */
+  --muted: #9aa4b2;
+  --card-bg: rgba(255,255,255,0.03);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  /* slightly lighter background for improved contrast */
+  /* reduced (lighter) darkness so foreground text pops more */
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(124,92,255,0.08), transparent 12%),
+              radial-gradient(1000px 500px at 90% 90%, rgba(255,107,203,0.05), transparent 12%),
+              linear-gradient(180deg, #122433, #0f2836);
+  color: #fbfdff; /* make primary text brighter */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.app-container {
+  padding: 1rem 1.2rem 3rem 1.2rem;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.MuiAppBar-root {
+  background: linear-gradient(90deg, rgba(124,92,255,0.18), rgba(255,107,203,0.12));
+  backdrop-filter: blur(6px);
+}
+
+.MuiToolbar-root {
+  min-height: 64px;
+}
+
+.MuiTypography-h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Cards */
+.MuiCard-root {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 14px;
+  padding: 0;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.5);
+}
+.MuiCard-root:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(124,92,255,0.12);
+}
+
+.product-image {
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  object-fit: cover;
+}
+
+.vibe-title {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.price {
+  color: var(--mint);
+  font-weight: 700;
+}
+
+/* Buttons - vibrant */
+.MuiButton-contained {
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
   color: white;
+  box-shadow: 0 8px 24px rgba(124,92,255,0.18);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.MuiButton-contained:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(124,92,255,0.2);
 }
 
-.App-link {
-  color: #61dafb;
+/* Order panel */
+.order-panel {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  padding: 1rem;
+  color: #e7eefc;
+}
+.order-panel .total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--mint);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Navbar links styling */
+.MuiButton-root.MuiButton-text {
+  color: #e6eef8;
+  text-transform: none;
+  font-weight: 600;
 }
+
+/* Grid layout helper */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Product card body */
+.card-content {
+  padding: 0.9rem 1rem 1.2rem 1rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255,107,203,0.14), rgba(124,92,255,0.12));
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* subtle text styles */
+.muted { color: #b9c6d6; }
+
+/* Make table and cart item text brighter for readability */
+.MuiTableCell-root, .MuiTableHead-root, table th, table td, .cart-item, .MuiTypography-h6, .MuiTypography-subtitle1, .MuiTypography-body2 {
+  color: #f8fbff;
+}
+
+/* soften dividers on dark background */
+.MuiDivider-root, hr {
+  border-color: rgba(255,255,255,0.06);
+}
+
+/* make table borders subtle */
+table {
+  border-collapse: collapse;
+}
+table td, table th {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* make sure headings and small text are readable */
+.MuiTypography-root, p, label, input, .MuiFormLabel-root {
+  color: inherit;
+}
+
+@media (max-width: 900px) {
+  .MuiToolbar-root { padding: 0 8px; }
+}
+
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
