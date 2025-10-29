@@ -1,10 +1,11 @@
-import { Container, Typography, IconButton, Table, TableHead, TableRow, TableCell, TableBody, Button, CircularProgress, Alert } from '@mui/material';
-import { Delete } from '@mui/icons-material';
+import { Container, Typography, IconButton, Table, TableHead, TableRow, TableCell, TableBody, Button, CircularProgress, Alert, Box } from '@mui/material';
+import { Delete, Add, Remove } from '@mui/icons-material';
 import { useContext } from 'react';
 import { CartContext } from '../contexts/CartContext';
+import { formatCurrency } from '../utils/format';
 
 export default function CartView() {
-  const { cart, loading, error, removeFromCart } = useContext(CartContext);
+  const { cart, loading, error, removeFromCart, updateQty } = useContext(CartContext);
 
   return (
     <Container sx={{ mt: 3 }}>
@@ -32,9 +33,15 @@ export default function CartView() {
               {(cart.products || []).map(item => (
                 <TableRow key={item.id}>
                   <TableCell>{item.title}</TableCell>
-                  <TableCell>{item.quantity}</TableCell>
-                  <TableCell>₹{item.price}</TableCell>
-                  <TableCell>₹{item.price * item.quantity}</TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <IconButton size="small" onClick={() => updateQty(item.id, (item.quantity || 1) - 1)}><Remove /></IconButton>
+                      <Typography sx={{ mx: 1 }}>{item.quantity}</Typography>
+                      <IconButton size="small" onClick={() => updateQty(item.id, (item.quantity || 1) + 1)}><Add /></IconButton>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{formatCurrency(item.price)}</TableCell>
+                  <TableCell>{formatCurrency((item.price || 0) * (item.quantity || 0))}</TableCell>
                   <TableCell>
                     <IconButton onClick={() => removeFromCart(item.id)}><Delete /></IconButton>
                   </TableCell>
@@ -42,7 +49,7 @@ export default function CartView() {
               ))}
             </TableBody>
           </Table>
-          <Typography variant="h6" sx={{ mt: 2 }}>Total: ₹{cart.total}</Typography>
+          <Typography variant="h6" sx={{ mt: 2 }}>Total: {formatCurrency(cart.total)}</Typography>
           <Button variant="contained" sx={{ mt: 2 }} href="/checkout">Proceed to Checkout</Button>
         </>
       )}

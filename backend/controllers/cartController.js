@@ -1,44 +1,85 @@
-import fetch from 'node-fetch';
+import Product from '../models/Product.js';
+import Cart from '../models/Cart.js';
 
-// GET /api/carts      Get all carts (list)
+async function findOrCreateCart(userId = 1) {
+  let cart = await Cart.findOne({ userId });
+  if (!cart) {
+    cart = await Cart.create({ userId, products: [] });
+  }
+  return cart;
+}
+
 export async function getCart(req, res, next) {
   try {
-    const apiRes = await fetch('https://dummyjson.com/carts');
-    const carts = await apiRes.json();
-    res.json(carts);
+    const userId = 1;
+    const cart = await findOrCreateCart(userId);
+    const detailed = await Promise.all((cart.products || []).map(async p => {
+      const prod = await Product.findOne({ id: p.productId }).lean();
+      return {
+        id: p.productId,
+        title: prod?.title || 'Unknown',
+        price: prod?.price || 0,
+        quantity: p.quantity
+      };
+    }));
+    const total = (detailed || []).reduce((s, it) => s + ((it.price || 0) * (it.quantity || 0)), 0);
+    res.json({ products: detailed, total });
   } catch (err) {
     next(err);
   }
 }
 
-
-
-// POST /api/carts       Add a new cart (simulated)
 export async function addToCart(req, res, next) {
   try {
-    // forward request body to dummyjson add endpoint so frontend can add arbitrary products
-    const payload = req.body || { userId: 1, products: [] };
-    const apiRes = await fetch('https://dummyjson.com/carts/add', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      headers: { 'Content-Type': 'application/json' },
-    });
-    const cart = await apiRes.json();
-    res.json(cart);
+    const { productId, qty } = req.body;
+    if (!productId) return res.status(400).json({ message: 'productId required' });
+    const q = Number(qty || 1);
+    const userId = 1;
+    const cart = await findOrCreateCart(userId);
+    const existing = cart.products.find(p => p.productId === productId);
+    if (existing) {
+      existing.quantity = existing.quantity + q;
+    } else {
+      cart.products.push({ productId, quantity: q });
+    }
+    cart.updatedAt = new Date();
+    await cart.save();
+    return await getCart(req, res, next);
   } catch (err) {
     next(err);
   }
 }
 
+export async function updateQty(req, res, next) {
+  try {
+    const productId = Number(req.params.productId);
+    const { qty } = req.body;
+    if (!productId) return res.status(400).json({ message: 'productId required' });
+    const userId = 1;
+    const cart = await findOrCreateCart(userId);
+    const existing = cart.products.find(p => p.productId === productId);
+    if (!existing) return res.status(404).json({ message: 'product not in cart' });
+    existing.quantity = Number(qty || existing.quantity);
+    if (existing.quantity < 1) {
+      cart.products = cart.products.filter(p => p.productId !== productId);
+    }
+    cart.updatedAt = new Date();
+    await cart.save();
+    return await getCart(req, res, next);
+  } catch (err) {
+    next(err);
+  }
+}
 
 export async function removeFromCart(req, res, next) {
   try {
-    const { id } = req.params;
-    const apiRes = await fetch(`https://dummyjson.com/carts/${id}`, {
-      method: 'DELETE',
-    });
-    const response = await apiRes.json();
-    res.json(response);
+    const productId = Number(req.params.productId);
+    const userId = 1;
+    const cart = await findOrCreateCart(userId);
+    cart.products = (cart.products || []).filter(p => p.productId !== productId);
+    cart.updatedAt = new Date();
+    await cart.save();
+    return await getCart(req, res, next);
   } catch (err) {
     next(err);
   }

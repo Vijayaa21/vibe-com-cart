@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { CartContext } from '../contexts/CartContext';
+import { formatCurrency } from '../utils/format';
 import {
   TextField,
   Button,
@@ -29,39 +31,11 @@ export default function CheckoutForm({ onSubmit }) {
   const [zip, setZip] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('card');
 
-  const [cart, setCart] = useState({ products: [], total: 0 });
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [receipt, setReceipt] = useState(null);
-
-  useEffect(() => {
-    fetchCart();
-  }, []);
-
-  const fetchCart = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get('/api/carts');
-      const data = res.data;
-      let chosen = null;
-      if (data?.carts && Array.isArray(data.carts)) {
-        chosen = data.carts.find(c => c.userId === 1) || data.carts[0] || { products: [], total: 0 };
-      } else if (Array.isArray(data)) {
-        chosen = data[0] || { products: [], total: 0 };
-      } else {
-        chosen = data || { products: [], total: 0 };
-      }
-      const products = chosen.products || [];
-      const computedTotal = (products || []).reduce((s, it) => s + ((it.price || 0) * (it.quantity || 0)), 0);
-      setCart({ products, total: chosen.total ?? computedTotal });
-    } catch (err) {
-      setError('Failed to load cart');
-      setCart({ products: [], total: 0 });
-    } finally {
-      setLoading(false);
-    }
-  };
+  
+  const { cart, loading } = useContext(CartContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -95,8 +69,8 @@ export default function CheckoutForm({ onSubmit }) {
       {receipt ? (
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6">Order Confirmed</Typography>
-          <Typography>Amount paid: ₹{receipt.total}</Typography>
-          <Typography sx={{ color: 'text.secondary', mt: 1 }}>Receipt: {receipt.timestamp}</Typography>
+          <Typography>Amount paid: {formatCurrency(receipt?.total)}</Typography>
+          <Typography sx={{ color: 'text.secondary', mt: 1 }}>Order Time: {new Date(receipt?.timestamp).toLocaleString()}</Typography>
         </Paper>
       ) : (
         <form onSubmit={handleSubmit}>
@@ -145,24 +119,24 @@ export default function CheckoutForm({ onSubmit }) {
                   <>
                     {(cart.products || []).map(p => (
                       <Box key={p.id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="body2">{p.title} x{p.quantity}</Typography>
-                        <Typography variant="body2">₹{(p.price || 0) * (p.quantity || 1)}</Typography>
+                        <Typography variant="body2">{p.title} × {p.quantity}</Typography>
+                        <Typography variant="body2">{formatCurrency(p.price * p.quantity)}</Typography>
                       </Box>
                     ))}
 
                     <Divider sx={{ my: 1 }} />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography>Bag total</Typography>
-                      <Typography>₹{cart.total}</Typography>
+                      <Typography>{formatCurrency(cart.total)}</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Typography>Delivery</Typography>
-                      <Typography>₹{deliveryFee}</Typography>
+                      <Typography>{formatCurrency(deliveryFee)}</Typography>
                     </Box>
                     <Divider sx={{ my: 1 }} />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="h6">Order Total</Typography>
-                      <Typography variant="h6">₹{orderTotal}</Typography>
+                      <Typography variant="h6" className="total">{formatCurrency(orderTotal)}</Typography>
                     </Box>
                   </>
                 )}

@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { addToCart, removeFromCart, getCart } from '../controllers/cartController.js';
+import { addToCart, removeFromCart, getCart, updateQty } from '../controllers/cartController.js';
 const router = Router();
 
-router.post('/carts', addToCart);
-router.delete('/carts/:id', removeFromCart);
-router.get('/carts', getCart);
+router.post('/cart', addToCart);
+router.patch('/cart/:productId', updateQty);
+router.delete('/cart/:productId', removeFromCart);
+router.get('/cart', getCart);
 
 export default router;

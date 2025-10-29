@@ -29,19 +29,11 @@ export function CartProvider({ children }) {
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get('/api/carts');
-      const data = res.data;
-      let chosen = null;
-      if (data?.carts && Array.isArray(data.carts)) {
-        chosen = data.carts.find(c => c.userId === 1) || data.carts[0] || { products: [], total: 0 };
-      } else if (Array.isArray(data)) {
-        chosen = data[0] || { products: [], total: 0 };
-      } else {
-        chosen = data || { products: [], total: 0 };
-      }
-      const products = chosen.products || [];
+      const res = await axios.get('/api/cart');
+      const data = res.data || { products: [], total: 0 };
+      const products = data.products || [];
       const computedTotal = (products || []).reduce((s, it) => s + ((it.price || 0) * (it.quantity || 0)), 0);
-      setCart({ products, total: chosen.total ?? computedTotal });
+      setCart({ products, total: data.total ?? computedTotal });
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to load cart');
       setCart({ products: [], total: 0 });
@@ -53,7 +45,7 @@ export function CartProvider({ children }) {
   const addToCart = async (id, qty = 1) => {
     try {
       setAddingIds(prev => [...prev, id]);
-      await axios.post('/api/carts', { userId: 1, products: [{ id, quantity: qty }] });
+      await axios.post('/api/cart', { productId: id, qty });
       await fetchCart();
       showSnack('Item added to cart');
     } catch (err) {
@@ -65,7 +57,7 @@ export function CartProvider({ children }) {
 
   const removeFromCart = async (id) => {
     try {
-      await axios.delete(`/api/carts/${id}`);
+      await axios.delete(`/api/cart/${id}`);
       await fetchCart();
       showSnack('Item removed from cart');
     } catch (err) {
@@ -85,8 +77,8 @@ export function CartProvider({ children }) {
       const computedTotal = (products || []).reduce((s, it) => s + ((it.price || 0) * (it.quantity || 0)), 0);
       setCart({ products, total: computedTotal });
 
-      // notify backend - try to set desired qty by adding product with qty (dummyjson will respond)
-      await axios.post('/api/carts', { userId: 1, products: [{ id: productId, quantity: newQty }] });
+      // notify backend - set the quantity via PATCH
+      await axios.patch(`/api/cart/${productId}`, { qty: newQty });
       // refresh authoritative cart
       await fetchCart();
       showSnack('Quantity updated');

@@ -14,12 +14,10 @@
 body {
   margin: 0;
   font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-  /* slightly lighter background for improved contrast */
-  /* reduced (lighter) darkness so foreground text pops more */
   background: radial-gradient(1200px 600px at 10% 10%, rgba(124,92,255,0.08), transparent 12%),
               radial-gradient(1000px 500px at 90% 90%, rgba(255,107,203,0.05), transparent 12%),
               linear-gradient(180deg, #122433, #0f2836);
-  color: #fbfdff; /* make primary text brighter */
+  color: #fbfdff; 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -44,21 +42,49 @@ body {
 
 /* Cards */
 .MuiCard-root {
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius: 16px;
   padding: 0;
-  transition: transform 220ms ease, box-shadow 220ms ease;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 6px 18px rgba(2,6,23,0.5);
+  position: relative;
+  overflow: hidden;
 }
+
+.MuiCard-root::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(
+    45deg,
+    rgba(124,92,255,0.15),
+    rgba(255,107,203,0.15)
+  );
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
 .MuiCard-root:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 18px 40px rgba(124,92,255,0.12);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(124,92,255,0.2);
+}
+
+.MuiCard-root:hover::before {
+  opacity: 1;
 }
 
 .product-image {
-  border-top-left-radius: 14px;
-  border-top-right-radius: 14px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
   object-fit: cover;
+  transition: transform 300ms ease;
+}
+
+.MuiCard-root:hover .product-image {
+  transform: scale(1.05);
 }
 
 .vibe-title {
@@ -71,7 +97,6 @@ body {
   font-weight: 700;
 }
 
-/* Buttons - vibrant */
 .MuiButton-contained {
   border-radius: 999px;
   padding: 8px 16px;
@@ -85,7 +110,6 @@ body {
   box-shadow: 0 20px 40px rgba(124,92,255,0.2);
 }
 
-/* Order panel */
 .order-panel {
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   border-radius: 12px;
@@ -130,22 +154,20 @@ body {
 /* subtle text styles */
 .muted { color: #b9c6d6; }
 
-/* Make table and cart item text brighter for readability */
-.MuiTableCell-root, .MuiTableHead-root, table th, table td, .cart-item, .MuiTypography-h6, .MuiTypography-subtitle1, .MuiTypography-body2 {
-  color: #f8fbff;
+.MuiTableCell-root, .MuiTableHead-root, .MuiTableRow-root, table th, table td, .cart-item, .MuiTypography-h6, .MuiTypography-subtitle1, .MuiTypography-body2 {
+  color: #a5c5f3;
 }
 
-/* soften dividers on dark background */
 .MuiDivider-root, hr {
-  border-color: rgba(255,255,255,0.06);
+  border-color: rgba(52, 46, 46, 0.06);
 }
 
-/* make table borders subtle */
 table {
   border-collapse: collapse;
 }
-table td, table th {
+table td, table th, table tr {
   border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: ivory;
 }
 
 /* make sure headings and small text are readable */
@@ -160,4 +182,26 @@ table td, table th {
 @media (max-width: 600px) {
   .grid { grid-template-columns: 1fr; }
 }
+
+
+.cart-text,
+.cart-text table,
+.cart-text th,
+.cart-text td,
+.cart-text .MuiTableCell-root,
+.cart-text .MuiTableHead-root,
+.cart-text .MuiSvgIcon-root,
+.cart-text .MuiIconButton-root {
+  color: #ffffff !important;
+  fill: currentColor !important;
+}
+
+.cart-text .MuiTableCell-root,
+.cart-text table td,
+.cart-text table th {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.cart-text .muted { color: #cfe6ff !important; }
+
 
